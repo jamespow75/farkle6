@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Farkle Elite - CodePen Optimized</title>
+  <style>
+    :root { 
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; 
+      --rainbow: linear-gradient(135deg, #ff5f6d, #ffc371, #6b7cff, #2bcbba);
+      --card-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+    }
+    body { margin: 0; background: #f8fafc; color: #1e293b; line-height: 1.5; }
+    
+    header { padding: 40px 16px; background: var(--rainbow); color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.15); text-align: center; }
+    header h1 { margin: 0; font-size: 36px; font-weight: 900; letter-spacing: -1px; }
+
+    .wrap { padding: 0 20px 40px; max-width: 1000px; margin: -20px auto 0; }
+    .grid { display: grid; grid-template-columns: 340px 1fr; gap: 24px; align-items: start; }
+    @media (max-width: 850px) { .grid { grid-template-columns: 1fr; } .wrap { margin-top: 20px; } }
+
+    .card { background: #fff; border-radius: 24px; padding: 24px; box-shadow: var(--card-shadow); margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.8); }
+    .card h2 { margin: 0 0 15px; font-size: 13px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 800; }
+    
+    label { display: block; font-size: 11px; margin: 15px 0 6px; color: #64748b; font-weight: 800; text-transform: uppercase; }
+    input, select { width: 100%; box-sizing: border-box; padding: 14px; border-radius: 12px; border: 2px solid #f1f5f9; font-size: 16px; outline: none; background: #f8fafc; transition: all 0.2s; }
+    input:focus { border-color: #6b7cff; background: #fff; }
+
+    .btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+    button { flex: 1; padding: 14px; border-radius: 12px; border: none; background: #f1f5f9; font-size: 14px; cursor: pointer; font-weight: 700; transition: all 0.2s; }
+    button.primary { background: var(--rainbow); color: #fff; }
+    button.danger { background: #fff1f2; color: #be123b; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .player-row { display: flex; align-items: center; justify-content: space-between; padding: 20px; border-radius: 20px; margin-bottom: 12px; background: #fff; border: 2px solid #f1f5f9; transition: all 0.3s; position: relative; }
+    .player-row.is-leader { border-color: #ffc371; background: #fffdf5; }
+    .player-row.is-active { border-left: 8px solid #6b7cff; }
+    .player-row.finished { opacity: 0.5; background: #f1f5f9; border-color: transparent; }
+    .finished-badge { position: absolute; right: 20px; top: -10px; background: #64748b; color: white; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 900; }
+
+    .player-name { font-weight: 900; font-size: 20px; color: #1e293b; }
+    .player-score { font-size: 28px; font-weight: 900; color: #6b7cff; }
+
+    .banner { padding: 24px; border-radius: 24px; margin-bottom: 24px; display: none; border: 2px solid #fcd34d; background: #fffbeb; animation: pop 0.3s ease-out; }
+    .banner-winner { background: var(--rainbow); color: #fff; border: none; text-align: center; }
+    @keyframes pop { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    .active-name-rainbow { font-size: 42px; font-weight: 900; background: var(--rainbow); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.1; margin-bottom: 20px; }
+    .farkle-text { color: #ef4444; font-weight: bold; }
+
+    .history-item { padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; display: flex; justify-content: space-between; }
+    .history-points { font-weight: 800; color: #6b7cff; }
+  </style>
+</head>
+
+<body>
+<header><h1>FARKLE 🎲</h1></header>
+
+<div class="wrap">
+  <div id="finalRoundBanner" class="banner">
+    <h3 style="margin:0 0 10px 0">🚀 Final Round!</h3>
+    <div id="finalRoundGoals"></div>
+  </div>
+
+  <div id="winnerBanner" class="banner banner-winner">
+    <h2 style="color: white; border: none; margin: 0; font-size: 24px;">🎊 CONGRATULATIONS 🎊</h2>
+    <h1 id="winnerText" style="font-size: 56px; margin: 10px 0; letter-spacing: -2px;"></h1>
+    <p id="winnerSub" style="font-size: 18px; opacity: 0.9; margin-bottom: 20px;"></p>
+    <button id="btnFresh" style="background: white; color: #ff5f6d; padding: 14px 40px; border-radius: 12px; border:none; font-weight:900; cursor:pointer; font-size: 16px;">START FRESH</button>
+  </div>
+
+  <div class="grid">
+    <aside>
+      <div class="card" id="settingsCard">
+        <h2>Settings</h2>
+        <input id="namesInput" type="text" placeholder="Names (e.g. Ali, Sam, Bo)" />
+        <label>Target Score</label>
+        <select id="targetSelect">
+          <option value="5000">5,000 Points</option>
+          <option value="10000" selected>10,000 Points</option>
+        </select>
+        <label style="display:flex; align-items:center; margin-top:15px; cursor: pointer; text-transform:none; font-size:13px; color:#1e293b;">
+          <input type="checkbox" id="start500Check" style="width:auto; margin-right:10px"> 500 to get on board
+        </label>
+        <div class="btns">
+          <button class="primary" id="btnStart">Start Game</button>
+          <button class="danger" id="btnClearAll">Reset</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="font-size: 14px; color: #94a3b8; font-weight: 800; text-transform: uppercase;">Current Turn</div>
+        <div id="turnIndicator" class="active-name-rainbow">Ready?</div>
+        
+        <label id="pointsLabel">Points Scored</label>
+        <input id="pointsInput" type="number" step="50" placeholder="0" inputmode="numeric" disabled />
+
+        <label style="display:flex; align-items:center; margin-top:15px; cursor: pointer; text-transform:none; font-size:13px; color:#1e293b;">
+          <input type="checkbox" id="farkleCheck" disabled style="width:auto; margin-right:10px"> Farkle (0)
+        </label>
+
+        <div class="btns">
+          <button class="primary" id="btnAddTurn" disabled>Enter Score</button>
+          <button id="btnUndo" disabled>Undo</button>
+        </div>
+      </div>
+    </aside>
+
+    <main>
+      <div class="card">
+        <h2>Leaderboard</h2>
+        <div id="leaderboardList"></div>
+      </div>
+
+      <div class="card" id="historyCard" style="display:none">
+        <h2>Last 3 Scores</h2>
+        <div id="historyList"></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  const LS_KEY = "farkle_v18_final";
+  
+  // Initial empty state
+  const getInitialState = () => ({
+    players: [], 
+    turns: [], 
+    settings: { target: 10000, start500: false },
+    winnerTriggerId: null, 
+    isGameOver: false, 
+    activePlayerId: null, 
+    finishedPlayerIds: []
+  });
+
+  let state = getInitialState();
+
+  const $ = (id) => document.getElementById(id);
+
+  // Manual Hard Reset (No Reload)
+  function hardReset() {
+    localStorage.removeItem(LS_KEY);
+    state = getInitialState();
+    
+    // Clear UI Elements manually
+    $("namesInput").value = "";
+    $("pointsInput").value = "";
+    $("farkleCheck").checked = false;
+    $("winnerBanner").style.display = "none";
+    $("finalRoundBanner").style.display = "none";
+    $("settingsCard").style.opacity = "1";
+    $("turnIndicator").textContent = "Ready?";
+    $("pointsLabel").textContent = "Points Scored";
+    
+    refreshUI();
+  }
+
+  function save() { 
+    localStorage.setItem(LS_KEY, JSON.stringify(state)); 
+  }
+  
+  function load() {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) {
+      state = JSON.parse(raw);
+      refreshUI();
+    }
+  }
+
+  function refreshUI() {
+    const hasPlayers = state.players.length > 0;
+    const currentLeader = hasPlayers ? [...state.players].sort((a,b) => b.total - a.total)[0] : null;
+
+    // Leaderboard
+    const list = $("leaderboardList");
+    list.innerHTML = hasPlayers ? "" : '<p style="color:#94a3b8; text-align:center; padding: 40px 0;">Enter names to begin.</p>';
+    
+    state.players.forEach((p) => {
+      const isLeader = currentLeader && p.id === currentLeader.id && p.total > 0;
+      const isActive = p.id === state.activePlayerId;
+      const isFinished = state.finishedPlayerIds.includes(p.id);
+      list.innerHTML += `
+        <div class="player-row ${isLeader ? 'is-leader' : ''} ${isActive ? 'is-active' : ''} ${isFinished ? 'finished' : ''}">
+          ${isFinished ? '<div class="finished-badge">TURN FINISHED</div>' : ''}
+          <div class="player-info"><span class="player-name">${p.name} ${isLeader ? '👑' : ''}</span></div>
+          <div class="player-score">${p.total.toLocaleString()}</div>
+        </div>`;
+    });
+
+    // Active Turn UI
+    if (state.activePlayerId && !state.isGameOver) {
+      const activeP = state.players.find(x => x.id === state.activePlayerId);
+      $("turnIndicator").textContent = activeP.name;
+      if (state.winnerTriggerId) {
+        const targetToWin = currentLeader.total + 50;
+        const diff = targetToWin - activeP.total;
+        $("pointsLabel").innerHTML = `Score needed to win: <b style="color:#6b7cff">${Math.max(50, diff).toLocaleString()}</b>`;
+      }
+    }
+
+    // History
+    if (state.turns.length > 0) {
+      $("historyCard").style.display = "block";
+      $("historyList").innerHTML = state.turns.slice(-3).reverse().map(t => {
+        const p = state.players.find(x => x.id === t.playerId);
+        return `<div class="history-item"><span>${p.name}</span><span class="history-points">${t.isFarkle ? 'Farkle' : '+' + t.points}</span></div>`;
+      }).join("");
+    } else {
+      $("historyCard").style.display = "none";
+    }
+
+    // Victory/Final Round
+    if (state.winnerTriggerId && !state.isGameOver) {
+      $("finalRoundBanner").style.display = "block";
+      $("finalRoundGoals").innerHTML = `<p>One last turn for others to beat <b>${currentLeader.total.toLocaleString()}</b>.</p>`;
+    }
+
+    if (state.isGameOver) {
+      $("winnerBanner").style.display = "block";
+      $("winnerText").textContent = currentLeader.name;
+      $("winnerSub").textContent = `Winner with ${currentLeader.total.toLocaleString()} points!`;
+      $("turnIndicator").textContent = "Game Over";
+    }
+
+    // Input States
+    const lock = !hasPlayers || state.isGameOver;
+    $("pointsInput").disabled = lock;
+    $("farkleCheck").disabled = lock;
+    $("btnAddTurn").disabled = lock;
+    $("btnUndo").disabled = state.turns.length === 0;
+    if (hasPlayers && !state.isGameOver) {
+      $("settingsCard").style.opacity = "0.5";
+      $("pointsInput").focus();
+    }
+    save();
+  }
+
+  // Event Handlers
+  $("btnStart").onclick = () => {
+    const namesInput = $("namesInput").value.trim();
+    if (!namesInput) return alert("Enter names.");
+    const names = namesInput.split(",").map(n => n.trim()).filter(n => n);
+    
+    state = getInitialState();
+    state.players = names.map(name => ({ id: Math.random().toString(36).substr(2,5), name, total: 0, farkleStreak: 0, isOnBoard: !$("start500Check").checked }));
+    state.activePlayerId = state.players[0].id;
+    state.settings.target = Number($("targetSelect").value);
+    state.settings.start500 = $("start500Check").checked;
+    
+    refreshUI();
+  };
+
+  $("btnAddTurn").onclick = () => {
+    const p = state.players.find(x => x.id === state.activePlayerId);
+    if (!p || state.isGameOver) return;
+    const isFarkle = $("farkleCheck").checked;
+    const pts = isFarkle ? 0 : Number($("pointsInput").value);
+
+    if (isFarkle) {
+      p.farkleStreak++;
+      if (p.farkleStreak === 3) { p.total -= 300; p.farkleStreak = 0; }
+    } else {
+      p.farkleStreak = 0;
+      if (!p.isOnBoard && pts >= 500) p.isOnBoard = true;
+      if (p.isOnBoard) p.total += pts;
+    }
+
+    state.turns.push({ playerId: p.id, points: pts, isFarkle });
+    if (p.total >= state.settings.target && !state.winnerTriggerId) state.winnerTriggerId = p.id;
+    if (state.winnerTriggerId) state.finishedPlayerIds.push(p.id);
+
+    const nextIdx = (state.players.findIndex(x => x.id === p.id) + 1) % state.players.length;
+    const nextP = state.players[nextIdx];
+    
+    if (state.winnerTriggerId && nextP.id === state.winnerTriggerId) state.isGameOver = true;
+    else state.activePlayerId = nextP.id;
+
+    $("pointsInput").value = ""; 
+    $("farkleCheck").checked = false;
+    refreshUI();
+  };
+
+  $("btnUndo").onclick = () => {
+    if (state.turns.length === 0) return;
+    state.turns.pop();
+    state.winnerTriggerId = null; 
+    state.isGameOver = false; 
+    state.finishedPlayerIds = [];
+    state.players.forEach(p => { p.total = 0; p.farkleStreak = 0; p.isOnBoard = !state.settings.start500; });
+    
+    state.turns.forEach(t => {
+      const p = state.players.find(x => x.id === t.playerId);
+      if (t.isFarkle) { p.farkleStreak++; if (p.farkleStreak === 3) { p.total -= 300; p.farkleStreak = 0; } }
+      else { p.farkleStreak = 0; if (!p.isOnBoard && t.points >= 500) p.isOnBoard = true; if (p.isOnBoard) p.total += t.points; }
+      if (p.total >= state.settings.target && !state.winnerTriggerId) state.winnerTriggerId = p.id;
+      if (state.winnerTriggerId) state.finishedPlayerIds.push(p.id);
+    });
+    
+    const last = state.turns[state.turns.length - 1];
+    state.activePlayerId = last ? state.players[(state.players.findIndex(x => x.id === last.playerId) + 1) % state.players.length].id : state.players[0].id;
+    
+    $("winnerBanner").style.display = "none";
+    refreshUI();
+  };
+
+  $("btnFresh").onclick = hardReset;
+  $("btnClearAll").onclick = () => { if(confirm("Clear and start over?")) hardReset(); };
+  $("pointsInput").onkeyup = (e) => { if (e.key === "Enter") $("btnAddTurn").click(); };
+  $("farkleCheck").onchange = () => { if ($("farkleCheck").checked) $("btnAddTurn").click(); };
+
+  load();
+</script>
+</body>
+</html>
