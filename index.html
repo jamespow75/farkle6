@@ -3,104 +3,369 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Farkle: Scoring Guide + Scoreboard</title>
-
-  <!-- Fun font for the scoring guide (scoreboard stays system-ui) -->
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap" rel="stylesheet">
+  <title>Farkle Elite Scoreboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700;800;900&display=swap" rel="stylesheet">
 
   <style>
     :root {
       --rainbow: linear-gradient(135deg, #ff5f6d, #ffc371, #6b7cff, #2bcbba);
-      --card-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+      --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+      --bg: #f8fafc;
+      --text: #1e293b;
+      --muted: #64748b;
+      --soft: #94a3b8;
+      --line: #e2e8f0;
+      --panel: #ffffff;
+      --accent: #6b7cff;
+      --warning: #f59e0b;
+      --danger: #ef4444;
     }
 
-    /* Page shell (scoreboard original vibe) */
-    body { margin: 0; background: #f8fafc; color: #1e293b; line-height: 1.5; overflow-x: hidden; font-family: "Fredoka", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
-    header { padding: 18px 16px 14px; background: var(--rainbow); color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.15); text-align: center; }
-    header h1 { margin: 0; font-size: 32px; font-weight: 900; letter-spacing: -1px; cursor: pointer; user-select: none; }
-    header p { margin: 6px 0 0; opacity: 0.95; font-weight: 700; }
-
-    .wrap { padding: 0 20px 40px; max-width: 1100px; margin: -18px auto 0; }
-    .grid { display: grid; grid-template-columns: 360px 1fr; gap: 20px; align-items: start; }
-    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } .wrap { margin-top: 14px; } }
-
-    .card { background: #fff; border-radius: 24px; padding: 20px; box-shadow: var(--card-shadow); margin-bottom: 18px; border: 1px solid rgba(255,255,255,0.8); position: relative; z-index: 10; }
-    .card h2 { margin: 0 0 12px; font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 900; }
-
-    .dimmed-content { opacity: 0.4; pointer-events: none; }
-
-    label { display: block; font-size: 11px; margin: 14px 0 6px; color: #64748b; font-weight: 900; text-transform: uppercase; }
-    input, select {
-      width: 100%; box-sizing: border-box; padding: 12px 14px; border-radius: 12px; border: 2px solid #f1f5f9;
-      font-size: 16px; outline: none; background: #f8fafc; transition: all 0.2s;
+    * {
+      box-sizing: border-box;
     }
-    input:focus { border-color: #6b7cff; background: #fff; }
 
-    .btns { display: flex; gap: 10px; margin-top: 16px; }
-    button { padding: 12px 14px; border-radius: 12px; border: none; background: #f1f5f9; font-size: 14px; cursor: pointer; font-weight: 800; transition: all 0.2s; }
-    button.primary { background: var(--rainbow); color: #fff; flex: 1; }
-    button.secondary { background: #64748b; color: #fff; flex: 1; }
-    button.danger { background: #fff1f2; color: #be123b; }
-    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      overflow-x: hidden;
+      font-family: "Fredoka", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
 
-    #btnUndo { align-self: center; width: 55%; margin-top: 12px; font-size: 12px; padding: 8px; background: transparent; color: #94a3b8; border: 1px solid #f1f5f9; }
+    header {
+      padding: 18px 16px 14px;
+      background: var(--rainbow);
+      color: white;
+      text-align: center;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    }
 
-    .player-row { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-radius: 18px; margin-bottom: 10px; background: #fff; border: 2px solid #f1f5f9; transition: all 0.3s; position: relative; }
-    .player-row.is-leader { border-color: #ffc371; background: #fffdf5; }
-    .player-row.is-active { border-left: 8px solid #6b7cff; }
-    .player-row.finished { opacity: 0.5; background: #f1f5f9; border-color: transparent; }
+    header h1 {
+      margin: 0;
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      cursor: pointer;
+      user-select: none;
+    }
 
-    .finished-badge { position: absolute; right: 16px; top: -10px; background: #64748b; color: white; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 900; }
-    .farkle-dot { height: 10px; width: 10px; background-color: #ef4444; border-radius: 50%; display: inline-block; margin-left: 5px; box-shadow: 0 0 6px rgba(239, 68, 68, 0.6); }
-    .player-name { font-weight: 900; font-size: 18px; color: #1e293b; display: flex; align-items: center; }
-    .player-score { font-size: 26px; font-weight: 900; color: #6b7cff; }
+    header p {
+      margin: 6px 0 0;
+      opacity: 0.95;
+      font-weight: 700;
+    }
 
-    .final-round-msg { background: #fffbeb; border: 2px solid #fcd34d; padding: 12px; border-radius: 14px; margin-bottom: 16px; font-weight: 800; text-align: center; display: none; }
+    .wrap {
+      max-width: 1100px;
+      margin: -18px auto 0;
+      padding: 0 20px 40px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .wrap {
+        margin-top: 14px;
+      }
+    }
+
+    .card {
+      background: var(--panel);
+      border-radius: 24px;
+      padding: 20px;
+      box-shadow: var(--card-shadow);
+      margin-bottom: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      position: relative;
+      z-index: 10;
+    }
+
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 12px;
+      color: var(--soft);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 900;
+    }
+
+    .dimmed-content {
+      opacity: 0.45;
+      pointer-events: none;
+    }
+
+    label {
+      display: block;
+      font-size: 11px;
+      margin: 14px 0 6px;
+      color: var(--muted);
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 2px solid #f1f5f9;
+      font-size: 16px;
+      outline: none;
+      background: #f8fafc;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--accent);
+      background: white;
+    }
+
+    .btns {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    button {
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: none;
+      background: #f1f5f9;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: 800;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    button.primary {
+      background: var(--rainbow);
+      color: white;
+      flex: 1;
+    }
+
+    button.secondary {
+      background: var(--muted);
+      color: white;
+      flex: 1;
+    }
+
+    button.danger {
+      background: #fff1f2;
+      color: #be123b;
+    }
+
+    #btnUndo {
+      align-self: center;
+      width: 55%;
+      margin-top: 12px;
+      font-size: 12px;
+      padding: 8px;
+      background: transparent;
+      color: var(--soft);
+      border: 1px solid #f1f5f9;
+    }
+
+    .player-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border-radius: 18px;
+      margin-bottom: 10px;
+      background: white;
+      border: 2px solid #f1f5f9;
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .player-row.is-leader {
+      border-color: #ffc371;
+      background: #fffdf5;
+    }
+
+    .player-row.is-active {
+      border-left: 8px solid var(--accent);
+    }
+
+    .player-row.finished {
+      opacity: 0.58;
+      background: #f1f5f9;
+      border-color: transparent;
+    }
+
+    .player-row.almost-there {
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
+    }
+
+    .finished-badge {
+      position: absolute;
+      right: 16px;
+      top: -10px;
+      background: var(--muted);
+      color: white;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 900;
+    }
+
+    .farkle-dot {
+      height: 10px;
+      width: 10px;
+      background-color: var(--danger);
+      border-radius: 50%;
+      display: inline-block;
+      margin-left: 5px;
+      box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
+    }
+
+    .player-name {
+      font-weight: 900;
+      font-size: 18px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 2px;
+    }
+
+    .player-score {
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--accent);
+    }
+
+    .final-round-msg {
+      background: #fffbeb;
+      border: 2px solid #fcd34d;
+      padding: 14px;
+      border-radius: 16px;
+      margin-bottom: 16px;
+      font-weight: 800;
+      text-align: center;
+      display: none;
+      animation: pulse 1.2s infinite;
+    }
+
+    #finalRoundTarget {
+      font-size: 24px;
+      margin-top: 8px;
+      font-weight: 900;
+      color: var(--accent);
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
 
     #toast {
-      position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(100px);
-      background: #1e293b; color: white; padding: 14px 26px; border-radius: 999px;
-      font-weight: 800; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      z-index: 1000; box-shadow: 0 10px 15px rgba(0,0,0,0.2);
+      position: fixed;
+      bottom: 26px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--text);
+      color: white;
+      padding: 14px 26px;
+      border-radius: 999px;
+      font-weight: 800;
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 1000;
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+      max-width: 90vw;
+      text-align: center;
     }
-    #toast.show { transform: translateX(-50%) translateY(0); }
-    .active-name-rainbow { font-size: 40px; font-weight: 900; background: var(--rainbow); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.05; margin-bottom: 14px; }
 
-    /* ---------- Compact Scoring Guide (scoped so it won't fight the scoreboard styles) ---------- */
-    .guide { font-family: "Fredoka", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
-    .guide-wrap { display: grid; grid-template-columns: 1fr; gap: 12px; }
-    .guide-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .active-name-rainbow {
+      font-size: 40px;
+      font-weight: 900;
+      background: var(--rainbow);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.05;
+      margin-bottom: 14px;
+    }
+
+    .guide-wrap {
+      display: grid;
+      gap: 12px;
+    }
+
     .guide-card {
       border-radius: 18px;
       border: 2px solid #eef2ff;
       background: #fbfdff;
       padding: 12px;
     }
+
     .guide-title {
-      display: flex; align-items: center; justify-content: space-between;
-      font-weight: 800; letter-spacing: 0.2px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 800;
       margin-bottom: 8px;
     }
-    .guide-title small { color: #64748b; font-weight: 800; }
+
+    .guide-title small {
+      color: var(--muted);
+      font-weight: 800;
+    }
+
     .g-row {
-      display: flex; align-items: center; justify-content: space-between;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       padding: 8px 10px;
       border-radius: 14px;
-      background: #fff;
+      background: white;
       border: 1px solid #f1f5f9;
       font-weight: 800;
       margin-bottom: 8px;
     }
-    .g-row:last-child { margin-bottom: 0; }
+
+    .g-row:last-child {
+      margin-bottom: 0;
+    }
+
     .tag {
       padding: 5px 10px;
       border-radius: 999px;
-      border: 2px solid #1e293b;
+      border: 2px solid var(--text);
       background: #ffc371;
-      color: #1e293b;
+      color: var(--text);
       font-weight: 900;
       font-size: 13px;
     }
+
     .guide-note {
       background: #fff7ed;
       border: 1px solid #fed7aa;
@@ -108,7 +373,9 @@
       border-radius: 16px;
       font-weight: 800;
       color: #9a3412;
+      margin-top: 10px;
     }
+
     .guide-mult {
       background: #f5f3ff;
       border: 1px dashed #a78bfa;
@@ -116,326 +383,641 @@
       padding: 10px 12px;
       font-weight: 800;
       color: #5b21b6;
+      margin-top: 10px;
     }
-    .guide-mult div { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
-    .guide-mult div:last-child { border-bottom: none; }</style>
+
+    .guide-mult div {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .guide-mult div:last-child {
+      border-bottom: none;
+    }
+
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: #f8fafc;
+      border: 1px solid #f1f5f9;
+      margin-bottom: 8px;
+    }
+
+    .history-item span:first-child {
+      font-weight: 900;
+    }
+
+    .history-item span:last-child {
+      font-weight: 900;
+      color: var(--accent);
+    }
+
+    .winner-card {
+      display: none;
+      background: var(--rainbow);
+      color: white;
+      text-align: center;
+    }
+
+    .winner-card h2 {
+      color: white;
+      border: none;
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .winner-card h1 {
+      font-size: 52px;
+      margin: 10px 0;
+      letter-spacing: -2px;
+    }
+
+    .winner-card p {
+      font-size: 18px;
+      opacity: 0.95;
+      margin-bottom: 18px;
+    }
+
+    .winner-card button {
+      background: white;
+      color: #ff5f6d;
+      padding: 12px 34px;
+      border-radius: 12px;
+      border: none;
+      font-weight: 900;
+      font-size: 16px;
+    }
+
+    .small-help {
+      margin-top: 8px;
+      color: var(--soft);
+      font-size: 12px;
+      font-weight: 700;
+    }
+  </style>
 </head>
 <body>
+  <header>
+    <h1 id="titleReset" title="Click to start fresh">FARKLE 🎲</h1>
+    <p>Scoreboard of glory, doom, and trumpet-level flatulence</p>
+  </header>
 
-<header>
-  <h1 id="titleReset" title="Click to start fresh">FARKLE 🎲</h1>
-  
-</header>
+  <div id="toast">Keep Rolling! You need at least 300 to bank!</div>
 
-<div id="toast">Keep Rolling! You need at least 300 to bank!</div>
+  <div class="wrap">
+    <div id="finalRoundBanner" class="final-round-msg">
+      <div style="font-size: 22px;">🚀 FINAL ROUND</div>
+      <div id="finalRoundTarget"></div>
+    </div>
 
-<div class="wrap">
-  <div id="finalRoundBanner" class="final-round-msg">🚀 FINAL ROUND: Beat the leader to win!</div>
+    <div id="winnerBanner" class="card winner-card">
+      <h2>🎊 CONGRATULATIONS 🎊</h2>
+      <h1 id="winnerText"></h1>
+      <p id="winnerSub"></p>
+      <button id="btnFresh">START FRESH</button>
+    </div>
 
-  <div id="winnerBanner" class="card" style="display:none; background: var(--rainbow); color: #fff; text-align: center;">
-    <h2 style="color: white; border: none; margin: 0; font-size: 22px;">🎊 CONGRATULATIONS 🎊</h2>
-    <h1 id="winnerText" style="font-size: 52px; margin: 10px 0; letter-spacing: -2px;"></h1>
-    <p id="winnerSub" style="font-size: 18px; opacity: 0.9; margin-bottom: 18px;"></p>
-    <button id="btnFresh" style="background: white; color: #ff5f6d; padding: 12px 34px; border-radius: 12px; border:none; font-weight:900; cursor:pointer; font-size: 16px;">START FRESH</button>
-  </div>
+    <div class="grid">
+      <aside>
+        <div class="card" id="settingsCard">
+          <h2>Settings</h2>
+          <div id="settingsInner">
+            <label for="namesInput">Player Names</label>
+            <input id="namesInput" type="text" placeholder="Ali, Sam, Bo" />
 
-  <div class="grid">
-    <aside>
-      <!-- NEW: Compact scoring guide card -->
-      <div class="card guide" id="scoringGuideCard">
-        <h2>Scoring Guide</h2>
-        <div class="guide-wrap">
-          <div class="guide-card">
-            <div class="guide-title">⭐ Singles <small>(always count)</small></div>
-            <div class="g-row"><span>1️⃣ One</span><span class="tag">100</span></div>
-            <div class="g-row"><span>5️⃣ Five</span><span class="tag">50</span></div>
-          </div>
+            <label for="targetSelect">Target Score</label>
+            <select id="targetSelect">
+              <option value="5000">5,000</option>
+              <option value="10000" selected>10,000</option>
+            </select>
 
-          <div class="guide-card">
-            <div class="guide-title">🚀 Three-of-a-kind <small>(base)</small></div>
-            <div class="g-row"><span>1️⃣1️⃣1️⃣</span><span class="tag">1,000</span></div>
-            <div class="g-row"><span>6️⃣6️⃣6️⃣</span><span class="tag">600</span></div>
-            <div class="g-row"><span>5️⃣5️⃣5️⃣</span><span class="tag">500</span></div>
-            <div class="g-row"><span>4️⃣4️⃣4️⃣</span><span class="tag">400</span></div>
-            <div class="g-row"><span>3️⃣3️⃣3️⃣</span><span class="tag">300</span></div>
-            <div class="g-row"><span>2️⃣2️⃣2️⃣</span><span class="tag">200</span></div>
-          </div>
+            <label style="display:flex; align-items:center; margin-top:14px; cursor:pointer; text-transform:none; font-size:13px;">
+              <input type="checkbox" id="start500Check" style="width:auto; margin-right:10px;">
+              500 to get on board
+            </label>
 
-          <div class="guide-card">
-            <div class="guide-title">🏆 Big combos <small>(special)</small></div>
-            <div class="g-row"><span>🌈 1-6 Straight</span><span class="tag">2,500</span></div>
-            <div class="g-row"><span>🔥 2 Triplets</span><span class="tag">2,000</span></div>
-            <div class="g-row"><span>👯 3 Pairs</span><span class="tag">1,500</span></div>
-
-            <div class="guide-mult" style="margin-top:10px;">
-              <div><span>✨ 4 of a kind</span><span>ToaK × 2</span></div>
-              <div><span>✨ 5 of a kind</span><span>ToaK × 3</span></div>
-              <div><span>✨ 6 of a kind</span><span>ToaK × 4</span></div>
+            <div class="btns">
+              <button class="primary" id="btnStart">Start Game</button>
+              <button class="danger" id="btnClearAll">Reset</button>
             </div>
 
-            <div class="guide-note" style="margin-top:10px;">
-              👾 FARKLE: no scoring dice = turn points lost (and streak rules still apply).
+            <div class="small-help">Tip: keep <code>fart.wav</code> in the same folder as this HTML file.</div>
+          </div>
+        </div>
+
+        <div class="card" id="scoringGuideCard">
+          <h2>Scoring Guide</h2>
+          <div class="guide-wrap">
+            <div class="guide-card">
+              <div class="guide-title">⭐ Singles <small>(always count)</small></div>
+              <div class="g-row"><span>1️⃣ One</span><span class="tag">100</span></div>
+              <div class="g-row"><span>5️⃣ Five</span><span class="tag">50</span></div>
+            </div>
+
+            <div class="guide-card">
+              <div class="guide-title">🚀 Three-of-a-kind <small>(base)</small></div>
+              <div class="g-row"><span>1️⃣1️⃣1️⃣</span><span class="tag">1,000</span></div>
+              <div class="g-row"><span>6️⃣6️⃣6️⃣</span><span class="tag">600</span></div>
+              <div class="g-row"><span>5️⃣5️⃣5️⃣</span><span class="tag">500</span></div>
+              <div class="g-row"><span>4️⃣4️⃣4️⃣</span><span class="tag">400</span></div>
+              <div class="g-row"><span>3️⃣3️⃣3️⃣</span><span class="tag">300</span></div>
+              <div class="g-row"><span>2️⃣2️⃣2️⃣</span><span class="tag">200</span></div>
+            </div>
+
+            <div class="guide-card">
+              <div class="guide-title">🏆 Big combos <small>(special)</small></div>
+              <div class="g-row"><span>🌈 1-6 Straight</span><span class="tag">2,500</span></div>
+              <div class="g-row"><span>🔥 2 Triplets</span><span class="tag">2,000</span></div>
+              <div class="g-row"><span>👯 3 Pairs</span><span class="tag">1,500</span></div>
+
+              <div class="guide-mult">
+                <div><span>✨ 4 of a kind</span><span>ToaK × 2</span></div>
+                <div><span>✨ 5 of a kind</span><span>ToaK × 3</span></div>
+                <div><span>✨ 6 of a kind</span><span>ToaK × 4</span></div>
+              </div>
+
+              <div class="guide-note">
+                👾 FARKLE: no scoring dice = turn points lost. Three Farkles in a row = minus 300.
+              </div>
             </div>
           </div>
         </div>
-      </div>
-
       </aside>
 
-    <main>
-      <div class="card">
-        <h2>Current Turn</h2>
-        <div id="turnIndicator" class="active-name-rainbow">Ready?</div>
-        <label id="pointsLabel">Points Scored</label>
-        <input id="pointsInput" type="number" step="50" placeholder="0" inputmode="numeric" disabled />
-        <div class="btns">
-          <button class="primary" id="btnAddTurn" disabled>Bank</button>
-          <button class="secondary" id="btnFarkleAction" disabled>Farkle (0)</button>
-        </div>
-        <div style="display: flex; justify-content: center;">
-          <button id="btnUndo" disabled>Undo Last Action</button>
-        </div>
-      </div>
+      <main>
+        <div class="card">
+          <h2>Current Turn</h2>
+          <div id="turnIndicator" class="active-name-rainbow">Ready?</div>
 
-      <div class="card"><h2>Leaderboard</h2><div id="leaderboardList"></div></div>
+          <label id="pointsLabel" for="pointsInput">Points Scored</label>
+          <input id="pointsInput" type="number" step="50" placeholder="0" inputmode="numeric" disabled />
 
-      <div class="card" id="settingsCard">
-        <h2>Settings</h2>
-        <div id="settingsInner">
-          <input id="namesInput" type="text" placeholder="Names (Ali, Sam, Bo)" />
-          <label>Target Score</label>
-          <select id="targetSelect"><option value="5000">5,000</option><option value="10000" selected>10,000</option></select>
-          <label style="display:flex; align-items:center; margin-top:14px; cursor: pointer; text-transform:none; font-size:13px;">
-            <input type="checkbox" id="start500Check" style="width:auto; margin-right:10px"> 500 to get on board
-          </label>
           <div class="btns">
-            <button class="primary" id="btnStart">Start Game</button>
-            <button class="danger" id="btnClearAll">Reset</button>
+            <button class="primary" id="btnAddTurn" disabled>Bank</button>
+            <button class="secondary" id="btnFarkleAction" disabled>Farkle (0)</button>
+          </div>
+
+          <div style="display: flex; justify-content: center;">
+            <button id="btnUndo" disabled>Undo Last Action</button>
           </div>
         </div>
-      </div>
 
-      
-      
-      
+        <div class="card">
+          <h2>Leaderboard</h2>
+          <div id="leaderboardList"></div>
+        </div>
 
-      
-
-      <div class="card" id="historyCard" style="display:none"><h2>Last 3 Scores</h2><div id="historyList"></div></div>
-    </main>
+        <div class="card" id="historyCard" style="display:none;">
+          <h2>Last 3 Scores</h2>
+          <div id="historyList"></div>
+        </div>
+      </main>
+    </div>
   </div>
-</div>
 
-<script>
-  const LS_KEY = "farkle_v22_endgame";
-  const getInitialState = () => ({ players: [], turns: [], settings: { target: 10000, start500: false }, winnerTriggerId: null, isGameOver: false, activePlayerId: null, finishedPlayerIds: [] });
-  let state = getInitialState();
-  const $ = (id) => document.getElementById(id);
+  <script>
+    const LS_KEY = "farkle_v30_clean_final_round";
+    const fartSound = new Audio("fart.wav");
 
-  let audioCtx;
-  function playSound(type) {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    if (type === 'bank') {
-      osc.type = 'triangle'; osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-      osc.start(); osc.stop(audioCtx.currentTime + 0.2);
-    } else if (type === 'farkle') {
-      osc.type = 'sawtooth'; osc.frequency.setValueAtTime(120, audioCtx.currentTime);
-      gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
-      osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+    let audioCtx = null;
+    let toastTimer = null;
+
+    const $ = (id) => document.getElementById(id);
+
+    function getInitialState() {
+      return {
+        players: [],
+        turns: [],
+        settings: {
+          target: 10000,
+          start500: false
+        },
+        winnerTriggerId: null,
+        isGameOver: false,
+        activePlayerId: null,
+        finishedPlayerIds: []
+      };
     }
-  }
 
-  function showToast() { $("toast").classList.add("show"); setTimeout(() => $("toast").classList.remove("show"), 3000); }
+    let state = getInitialState();
 
-  function refreshUI() {
-    const hasPlayers = state.players.length > 0;
-    const sorted = [...state.players].sort((a,b) => b.total - a.total);
-    const currentLeader = hasPlayers ? sorted[0] : null;
+    function playSound(type) {
+      if (type === "bank") {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
 
-    // Leaderboard
-    const list = $("leaderboardList");
-    list.innerHTML = hasPlayers ? "" : '<p style="color:#94a3b8; text-align:center; padding: 34px 0; font-weight:800;">Enter names to begin.</p>';
-    state.players.forEach((p) => {
-      const isLeader = currentLeader && p.id === currentLeader.id && p.total > 0;
-      const isActive = p.id === state.activePlayerId;
-      const isFinished = state.finishedPlayerIds.includes(p.id);
-      let dots = '';
-      for(let i=0; i < p.farkleStreak; i++) { dots += '<span class="farkle-dot"></span>'; }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
 
-      list.innerHTML += `
-        <div class="player-row ${isLeader ? 'is-leader' : ''} ${isActive ? 'is-active' : ''} ${isFinished ? 'finished' : ''}">
-          ${isFinished ? '<div class="finished-badge">TURN FINISHED</div>' : ''}
-          <div class="player-name">${p.name} ${isLeader ? '👑' : ''} ${dots}</div>
-          <div class="player-score">${p.total.toLocaleString()}</div>
-        </div>`;
-    });
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
 
-    // Current Player & Calculations
-    if (state.activePlayerId && !state.isGameOver) {
-      const p = state.players.find(x => x.id === state.activePlayerId);
-      $("turnIndicator").textContent = p.name;
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
 
-      if (state.winnerTriggerId) {
-        $("finalRoundBanner").style.display = "block";
-        const needed = (currentLeader.total - p.total) + 50;
-        $("pointsLabel").innerHTML = `Score <b style="color:#6b7cff">${needed > 0 ? needed.toLocaleString() : 'any amount'}</b> to lead!`;
-      } else {
-        $("finalRoundBanner").style.display = "none";
-        $("pointsLabel").textContent = "Points Scored";
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.2);
+      }
+
+      if (type === "farkle") {
+        fartSound.pause();
+        fartSound.currentTime = 0;
+        fartSound.play().catch(() => {
+          // Ignore autoplay-related hiccups
+        });
       }
     }
 
-    if (state.isGameOver) {
-      $("winnerBanner").style.display = "block";
-      $("finalRoundBanner").style.display = "none";
-      $("winnerText").textContent = currentLeader.name;
-      $("winnerSub").textContent = `Grand Champion with ${currentLeader.total.toLocaleString()} points!`;
-    } else {
-      $("winnerBanner").style.display = "none";
-    }
-
-    $("historyCard").style.display = state.turns.length ? "block" : "none";
-    $("historyList").innerHTML = state.turns.slice(-3).reverse().map(t => {
-      const p = state.players.find(x => x.id === t.playerId);
-      return `<div class="history-item" style="display:flex; justify-content:space-between; padding: 10px 12px; border-radius: 14px; background:#f8fafc; border:1px solid #f1f5f9; margin-bottom:8px;">
-        <span style="font-weight:900">${p.name}</span>
-        <span style="font-weight:900;color:#6b7cff">${t.isFarkle ? 'Farkle' : '+' + t.points}</span>
-      </div>`;
-    }).join("");
-
-    const lock = !hasPlayers || state.isGameOver;
-    $("pointsInput").disabled = lock;
-    $("btnAddTurn").disabled = lock;
-    $("btnFarkleAction").disabled = lock;
-    $("btnUndo").disabled = state.turns.length === 0;
-
-    if (hasPlayers && !state.isGameOver) { $("settingsInner").classList.add("dimmed-content"); $("pointsInput").focus(); }
-    else { $("settingsInner").classList.remove("dimmed-content"); }
-
-    localStorage.setItem(LS_KEY, JSON.stringify(state));
-  }
-
-  $("btnStart").onclick = () => {
-    const val = $("namesInput").value.trim(); if (!val) return;
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    state = getInitialState();
-    state.players = val.split(",").map(n => n.trim()).filter(n => n).map(name => ({
-      id: Math.random().toString(36).substr(2,5),
-      name,
-      total: 0,
-      farkleStreak: 0,
-      isOnBoard: !$("start500Check").checked
-    }));
-    state.activePlayerId = state.players[0].id;
-    state.settings.target = Number($("targetSelect").value);
-    state.settings.start500 = $("start500Check").checked;
-    refreshUI();
-  };
-
-  const processTurn = (isFarkle) => {
-    const p = state.players.find(x => x.id === state.activePlayerId);
-    if (!p || state.isGameOver) return;
-    const pts = isFarkle ? 0 : Number($("pointsInput").value);
-
-    if (!isFarkle && pts > 0 && pts < 300) { showToast(); return; }
-
-    if (isFarkle) {
-      playSound('farkle'); p.farkleStreak++;
-      if (p.farkleStreak === 3) { p.total = Math.max(0, p.total - 300); p.farkleStreak = 0; }
-    } else {
-      playSound('bank'); p.farkleStreak = 0;
-      if (!p.isOnBoard && pts >= 500) p.isOnBoard = true;
-      if (p.isOnBoard) p.total += pts;
-    }
-
-    state.turns.push({ playerId: p.id, points: pts, isFarkle });
-
-    // Check if someone triggered the end game
-    if (p.total >= state.settings.target && !state.winnerTriggerId) {
-      state.winnerTriggerId = p.id;
-    }
-
-    // If we are in the final round, mark player as finished
-    if (state.winnerTriggerId) {
-      if (!state.finishedPlayerIds.includes(p.id)) state.finishedPlayerIds.push(p.id);
-    }
-
-    // Move to next player
-    const nextIdx = (state.players.findIndex(x => x.id === p.id) + 1) % state.players.length;
-    const nextP = state.players[nextIdx];
-
-    // Game ends if the next player is the one who triggered the final round
-    if (state.winnerTriggerId && nextP.id === state.winnerTriggerId) {
-      state.isGameOver = true;
-    } else {
-      state.activePlayerId = nextP.id;
-    }
-
-    $("pointsInput").value = ""; refreshUI();
-  };
-
-  $("btnAddTurn").onclick = () => processTurn(false);
-  $("btnFarkleAction").onclick = () => processTurn(true);
-
-  $("btnUndo").onclick = () => {
-    const turns = [...state.turns]; turns.pop();
-    const oldPlayers = state.players.map(p => p.name).join(",");
-    const target = state.settings.target;
-    const board = state.settings.start500;
-
-    state = getInitialState();
-    state.settings.target = target;
-    state.settings.start500 = board;
-
-    state.players = oldPlayers.split(",").map(n => n.trim()).filter(n => n).map(name => ({
-      id: Math.random().toString(36).substr(2,5),
-      name,
-      total: 0,
-      farkleStreak: 0,
-      isOnBoard: !board
-    }));
-    state.activePlayerId = state.players[0]?.id ?? null;
-
-    turns.forEach(t => {
-      const p = state.players.find(x => x.id === state.activePlayerId);
-      if (!p) return;
-      if (t.isFarkle) {
-        p.farkleStreak++;
-        if (p.farkleStreak === 3) p.total = Math.max(0, p.total - 300);
-      } else {
-        p.farkleStreak = 0;
-        if (!p.isOnBoard && t.points >= 500) p.isOnBoard = true;
-        if (p.isOnBoard) p.total += t.points;
+    function showToast(message = null) {
+      if (message) {
+        $("toast").textContent = message;
       }
-      if (p.total >= state.settings.target && !state.winnerTriggerId) state.winnerTriggerId = p.id;
-      if (state.winnerTriggerId) if (!state.finishedPlayerIds.includes(p.id)) state.finishedPlayerIds.push(p.id);
-      const nextIdx = (state.players.findIndex(x => x.id === p.id) + 1) % state.players.length;
-      state.activePlayerId = state.players[nextIdx].id;
-    });
 
-    state.turns = turns;
-    refreshUI();
-  };
+      $("toast").classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        $("toast").classList.remove("show");
+      }, 3000);
+    }
 
-  $("btnFresh").onclick = () => { state = getInitialState(); refreshUI(); };
-  $("titleReset").onclick = () => {
-    if (confirm("Start fresh? This will reset the current game.")) {
+    function saveState() {
+      localStorage.setItem(LS_KEY, JSON.stringify(state));
+    }
+
+    function getCurrentLeader() {
+      if (!state.players.length) return null;
+      return [...state.players].sort((a, b) => b.total - a.total)[0];
+    }
+
+    function getPlayerById(id) {
+      return state.players.find((p) => p.id === id) || null;
+    }
+
+    function getActivePlayer() {
+      return getPlayerById(state.activePlayerId);
+    }
+
+    function buildLeaderboard() {
+      const list = $("leaderboardList");
+      const hasPlayers = state.players.length > 0;
+
+      if (!hasPlayers) {
+        list.innerHTML = '<p style="color:#94a3b8; text-align:center; padding:34px 0; font-weight:800;">Enter names to begin.</p>';
+        return;
+      }
+
+      const currentLeader = getCurrentLeader();
+
+      list.innerHTML = "";
+      state.players.forEach((p) => {
+        const isLeader = currentLeader && p.id === currentLeader.id && p.total > 0;
+        const isActive = p.id === state.activePlayerId;
+        const isFinished = state.finishedPlayerIds.includes(p.id);
+
+        let dots = "";
+        for (let i = 0; i < p.farkleStreak; i++) {
+          dots += '<span class="farkle-dot"></span>';
+        }
+
+        let almostThereClass = "";
+        if (!state.winnerTriggerId && p.total >= state.settings.target * 0.8) {
+          almostThereClass = "almost-there";
+        }
+
+        list.innerHTML += `
+          <div class="player-row ${isLeader ? "is-leader" : ""} ${isActive ? "is-active" : ""} ${isFinished ? "finished" : ""} ${almostThereClass}">
+            ${isFinished ? '<div class="finished-badge">TURN FINISHED</div>' : ""}
+            <div class="player-name">${p.name} ${isLeader ? "👑" : ""} ${dots}</div>
+            <div class="player-score">${p.total.toLocaleString()}</div>
+          </div>
+        `;
+      });
+    }
+
+    function buildHistory() {
+      $("historyCard").style.display = state.turns.length ? "block" : "none";
+
+      $("historyList").innerHTML = state.turns
+        .slice(-3)
+        .reverse()
+        .map((t) => {
+          const p = getPlayerById(t.playerId);
+          return `
+            <div class="history-item">
+              <span>${p ? p.name : "Unknown"}</span>
+              <span>${t.isFarkle ? "Farkle" : "+" + t.points}</span>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    function updateFinalRoundUI() {
+      const banner = $("finalRoundBanner");
+      const targetText = $("finalRoundTarget");
+      const pointsLabel = $("pointsLabel");
+      const pointsInput = $("pointsInput");
+
+      const activePlayer = getActivePlayer();
+      const leader = getCurrentLeader();
+
+      if (!activePlayer || state.isGameOver || !state.winnerTriggerId) {
+        banner.style.display = "none";
+        pointsLabel.textContent = "Points Scored";
+        pointsInput.placeholder = "0";
+        return;
+      }
+
+      banner.style.display = "block";
+
+      const needed = (leader.total - activePlayer.total) + 1;
+
+      if (activePlayer.id === state.winnerTriggerId) {
+        targetText.textContent = `👑 You set the target: ${leader.total.toLocaleString()}`;
+        pointsLabel.textContent = "Waiting for the other players...";
+        pointsInput.placeholder = "0";
+      } else if (needed <= 0) {
+        targetText.textContent = `🔥 ${activePlayer.name} is already ahead! Bank any score to stay there`;
+        pointsLabel.textContent = "You are ahead. Just survive the turn.";
+        pointsInput.placeholder = "1";
+      } else {
+        targetText.textContent = `🎯 ${activePlayer.name} needs ${needed.toLocaleString()} to WIN`;
+        pointsLabel.innerHTML = `Minimum winning score: <b style="color:#6b7cff">${needed.toLocaleString()}</b>`;
+        pointsInput.placeholder = String(needed);
+      }
+    }
+
+    function updateCurrentTurnUI() {
+      const activePlayer = getActivePlayer();
+      const pointsInput = $("pointsInput");
+      const btnAddTurn = $("btnAddTurn");
+      const btnFarkleAction = $("btnFarkleAction");
+      const btnUndo = $("btnUndo");
+      const settingsInner = $("settingsInner");
+
+      const hasPlayers = state.players.length > 0;
+      const locked = !hasPlayers || state.isGameOver;
+
+      pointsInput.disabled = locked;
+      btnAddTurn.disabled = locked;
+      btnFarkleAction.disabled = locked;
+      btnUndo.disabled = state.turns.length === 0;
+
+      if (hasPlayers && !state.isGameOver) {
+        settingsInner.classList.add("dimmed-content");
+      } else {
+        settingsInner.classList.remove("dimmed-content");
+      }
+
+      if (!activePlayer || state.isGameOver) {
+        $("turnIndicator").textContent = state.isGameOver ? "Game Over" : "Ready?";
+        return;
+      }
+
+      $("turnIndicator").textContent = activePlayer.name;
+      updateFinalRoundUI();
+    }
+
+    function updateWinnerUI() {
+      const winnerBanner = $("winnerBanner");
+      const currentLeader = getCurrentLeader();
+
+      if (state.isGameOver && currentLeader) {
+        winnerBanner.style.display = "block";
+        $("winnerText").textContent = currentLeader.name;
+        $("winnerSub").textContent = `Grand Champion with ${currentLeader.total.toLocaleString()} points!`;
+      } else {
+        winnerBanner.style.display = "none";
+      }
+    }
+
+    function refreshUI() {
+      buildLeaderboard();
+      buildHistory();
+      updateCurrentTurnUI();
+      updateWinnerUI();
+      saveState();
+    }
+
+    function createPlayersFromNames(rawNames, boardRuleEnabled) {
+      return rawNames
+        .split(",")
+        .map((n) => n.trim())
+        .filter(Boolean)
+        .map((name) => ({
+          id: Math.random().toString(36).slice(2, 7),
+          name,
+          total: 0,
+          farkleStreak: 0,
+          isOnBoard: !boardRuleEnabled
+        }));
+    }
+
+    function startGame() {
+      const val = $("namesInput").value.trim();
+      if (!val) return;
+
+      state = getInitialState();
+      state.settings.target = Number($("targetSelect").value);
+      state.settings.start500 = $("start500Check").checked;
+      state.players = createPlayersFromNames(val, state.settings.start500);
+      state.activePlayerId = state.players[0]?.id || null;
+
+      refreshUI();
+    }
+
+    function moveToNextPlayer(currentPlayerId) {
+      const currentIndex = state.players.findIndex((p) => p.id === currentPlayerId);
+      const nextIndex = (currentIndex + 1) % state.players.length;
+      return state.players[nextIndex];
+    }
+
+    function triggerFinalRoundIfNeeded(player) {
+      if (player.total >= state.settings.target && !state.winnerTriggerId) {
+        state.winnerTriggerId = player.id;
+        showToast(`🚨 ${player.name.toUpperCase()} SETS THE TARGET: ${player.total.toLocaleString()}!`);
+      }
+    }
+
+    function processBankTurn(player, pts) {
+      if (pts > 0 && pts < 300) {
+        showToast("Keep Rolling! You need at least 300 to bank!");
+        return false;
+      }
+
+      playSound("bank");
+      player.farkleStreak = 0;
+
+      if (!player.isOnBoard && pts >= 500) {
+        player.isOnBoard = true;
+      }
+
+      if (player.isOnBoard) {
+        player.total += pts;
+      }
+
+      return true;
+    }
+
+    function processFarkleTurn(player) {
+      playSound("farkle");
+      player.farkleStreak += 1;
+
+      if (player.farkleStreak === 3) {
+        player.total = Math.max(0, player.total - 300);
+        player.farkleStreak = 0;
+        showToast(`💨 Three Farkles in a row. ${player.name} loses 300!`);
+      }
+    }
+
+    function processTurn(isFarkle) {
+      const player = getActivePlayer();
+      if (!player || state.isGameOver) return;
+
+      const pts = isFarkle ? 0 : Number($("pointsInput").value || 0);
+
+      let success = true;
+
+      if (isFarkle) {
+        processFarkleTurn(player);
+      } else {
+        success = processBankTurn(player, pts);
+      }
+
+      if (!success) return;
+
+      state.turns.push({
+        playerId: player.id,
+        points: pts,
+        isFarkle
+      });
+
+      triggerFinalRoundIfNeeded(player);
+
+      if (state.winnerTriggerId && !state.finishedPlayerIds.includes(player.id)) {
+        state.finishedPlayerIds.push(player.id);
+      }
+
+      const nextPlayer = moveToNextPlayer(player.id);
+
+      if (state.winnerTriggerId && nextPlayer.id === state.winnerTriggerId) {
+        state.isGameOver = true;
+      } else {
+        state.activePlayerId = nextPlayer.id;
+      }
+
+      $("pointsInput").value = "";
+      refreshUI();
+    }
+
+    function rebuildStateFromTurns(turns, namesCSV, target, start500) {
+      state = getInitialState();
+      state.settings.target = target;
+      state.settings.start500 = start500;
+      state.players = createPlayersFromNames(namesCSV, start500);
+      state.activePlayerId = state.players[0]?.id || null;
+
+      for (const t of turns) {
+        const player = getActivePlayer();
+        if (!player) break;
+
+        if (t.isFarkle) {
+          player.farkleStreak += 1;
+          if (player.farkleStreak === 3) {
+            player.total = Math.max(0, player.total - 300);
+            player.farkleStreak = 0;
+          }
+        } else {
+          player.farkleStreak = 0;
+          if (!player.isOnBoard && t.points >= 500) {
+            player.isOnBoard = true;
+          }
+          if (player.isOnBoard) {
+            player.total += t.points;
+          }
+        }
+
+        if (player.total >= state.settings.target && !state.winnerTriggerId) {
+          state.winnerTriggerId = player.id;
+        }
+
+        if (state.winnerTriggerId && !state.finishedPlayerIds.includes(player.id)) {
+          state.finishedPlayerIds.push(player.id);
+        }
+
+        const nextPlayer = moveToNextPlayer(player.id);
+        if (state.winnerTriggerId && nextPlayer.id === state.winnerTriggerId) {
+          state.isGameOver = true;
+        } else {
+          state.activePlayerId = nextPlayer.id;
+        }
+      }
+
+      state.turns = [...turns];
+    }
+
+    function undoLastAction() {
+      if (!state.turns.length) return;
+
+      const turns = [...state.turns];
+      turns.pop();
+
+      const namesCSV = state.players.map((p) => p.name).join(",");
+      const target = state.settings.target;
+      const start500 = state.settings.start500;
+
+      rebuildStateFromTurns(turns, namesCSV, target, start500);
+      refreshUI();
+    }
+
+    function fullReset() {
+      if (confirm("Reset game?")) {
+        localStorage.removeItem(LS_KEY);
+        location.reload();
+      }
+    }
+
+    function softFresh() {
       state = getInitialState();
       refreshUI();
     }
-  };
 
-  $("btnClearAll").onclick = () => { if(confirm("Reset game?")) { localStorage.removeItem(LS_KEY); location.reload(); } };
-  $("pointsInput").onkeyup = (e) => { if (e.key === "Enter") $("btnAddTurn").click(); };
+    $("btnStart").onclick = startGame;
+    $("btnAddTurn").onclick = () => processTurn(false);
+    $("btnFarkleAction").onclick = () => processTurn(true);
+    $("btnUndo").onclick = undoLastAction;
+    $("btnFresh").onclick = softFresh;
+    $("btnClearAll").onclick = fullReset;
 
-  const raw = localStorage.getItem(LS_KEY);
-  if (raw) { state = JSON.parse(raw); }
-  refreshUI();
-</script>
+    $("titleReset").onclick = () => {
+      if (confirm("Start fresh? This will reset the current game.")) {
+        softFresh();
+      }
+    };
 
+    $("pointsInput").addEventListener("keyup", (e) => {
+      if (e.key === "Enter") {
+        $("btnAddTurn").click();
+      }
+    });
+
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) {
+      try {
+        state = JSON.parse(raw);
+      } catch (err) {
+        state = getInitialState();
+      }
+    }
+
+    refreshUI();
+  </script>
 </body>
 </html>
