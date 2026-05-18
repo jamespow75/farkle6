@@ -536,7 +536,6 @@
               <button class="danger" id="btnClearAll">Reset</button>
             </div>
 
-            <div class="small-help">Tip: keep <code>fart.wav</code> in the same folder as this HTML file.</div>
           </div>
         </div>
 
@@ -915,6 +914,11 @@
       if (!player || state.isGameOver) return;
 
       const pts = isFarkle ? 0 : Number($("pointsInput").value || 0);
+
+      // Typing 0 and banking is the same as a farkle
+      if (!isFarkle && pts === 0) {
+        isFarkle = true;
+      }
 
       let success = true;
 
